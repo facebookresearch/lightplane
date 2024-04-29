@@ -1,0 +1,2 @@
+from .renderer_speed_benchmark import renderer_speed_benchmark
+from .splatter_speed_benchmark import splatter_speed_benchmark

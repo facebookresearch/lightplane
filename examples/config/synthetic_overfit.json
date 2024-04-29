@@ -1,0 +1,23 @@
+{
+    "dataset_type": "auto",
+    "data_dir": "./data/nerf_synthetic/chair",
+    "save_dir": "./results/chair",
+    "factor": 2,
+    "near": 1,   
+    "far": 3,
+    "grid_resolution": 128,
+    "num_iters": 30000,
+    "grid_representation": "triplane",
+    "renderer_type": "rays",
+    "num_samples": 128,
+    "num_samples_inf": 0,
+    "l1_loss_weight": 4e-5,
+    "lr_grids": 0.2,
+    "lr_nn": 0.005,
+    "scene_scale": 0.5,
+    "upsample_step": [8000, 15000],
+    "use_scaffold": true, 
+    "update_scaffold_step": [3000, 8000, 20000],
+    "grid_feat_dim": 32,
+    "mlp_hidden_chn": 64
+}
