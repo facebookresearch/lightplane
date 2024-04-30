@@ -99,8 +99,13 @@ def _process_introduction_lines(lines):
             )
             .replace(
                 "(LICENSE)",
-                f"({LIGHTPLANE_GIT_ROOT}/LICENSE)",
+                f"({LIGHTPLANE_GIT_ROOT}/tree/main/LICENSE)",
             )
+            .replace(
+                "docs/_static/assets/teaser_video_gif.gif",
+                "_static/assets/teaser_video_gif.gif",
+            )
+
         )
         lines_out.append(line)
     return lines_out
@@ -117,7 +122,7 @@ def _process_examples_lines(lines):
             link = link_with_brackets[2:-1]
             line = line.replace(
                 link_with_brackets,
-                f"](https://github.com/facebookresearch/lightplane/examples/{link})"
+                f"](https://github.com/facebookresearch/lightplane/tree/main/examples/{link})"
             )
         lines_out.append(line)
     return lines_out

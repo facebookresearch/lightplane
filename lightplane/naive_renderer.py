@@ -169,24 +169,24 @@ def lightplane_renderer_naive(
             `color_grid_sizes` provided.
             `color_grid` should be the same type as `grid`.
         grid_sizes: It specifies the size of `grid`.
-            It is optional when `grid` is a grid-list, but required when `grid`
-            is a 2D tensor.Example::
+            It is optional when `grid` is a grid-list, but required when `grid` is a 
+            2D tensor. Example::
 
-                grid_sizes = [[B, D_1, H_1, W_1, C], ... , [B, D_N, H_N, W_N, C]].
+                grid_sizes = [[B, D_1, H_1, W_1, C], ... , [B, D_N, H_N, W_N, C]]
 
         color_grid_sizes: It specifies the size of `color_grid` when `color_grid`
             is a 2D tensor.
-            It is optional when `color_grid` is a grid-list, but required when
-            `color_grid`is a 2D tensor. Example::
+            It is optional when `color_grid` is a grid-list, but required 
+            when `color_grid` is a 2D tensor. Example::
 
                 color_grid_sizes = [[B, D_1, H_1, W_1, C], ... , [B, D_N, H_N, W_N, C]]
 
-        regenerate_code: Ignored, but kept for compatibility with triton api
-        triton_block_size: Ignored, but kept for compatibility with triton api
-        triton_num_warps: Ignored, but kept for compatibility with triton api
+        regenerate_code: Ignored, but kept for compatibility with triton api.
+        triton_block_size: Ignored, but kept for compatibility with triton api.
+        triton_num_warps: Ignored, but kept for compatibility with triton api.
         checkpointing: Whether or not use `torch.utils.checkpoint` for checkpointing.
     Returns:
-        ray_length_render: The rendered ray-termination length `r (i.e. distance along the ray).
+        ray_length_render: The rendered ray-termination length `r` (i.e. distance along the ray).
         negative_log_transmittances: The negative log transmittances of the ray.
         feature_render: The expected features of the ray.
 
