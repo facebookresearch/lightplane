@@ -8,7 +8,7 @@ Lightplane implements a highly memory-efficient differentiable radiance field re
 
 *Ang Cao*, *Justin Johnson*, *Andrea Vedaldi*, *David Novotny* 
 
-[Project Page](https://lightplane.github.io/) | [Arxiv](TODO) | [Docs](https://lightplane.github.io/docs/)
+[Project Page](https://lightplane.github.io/) | [Arxiv](https://arxiv.org/abs/2404.19760) | [Docs](https://lightplane.github.io/docs/)
 
 **Lightplane can differentiably render batches of FullHD images** while consuming **less than a GigaByte** of GPU memory.
 Rendering / backpropagation speed is comparable to existing methods, which however exceed memory limits already for a single QVGA image (640x480).

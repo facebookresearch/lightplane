@@ -175,7 +175,7 @@ def lightplane_renderer_naive(
                 grid_sizes = [[B, D_1, H_1, W_1, C], ... , [B, D_N, H_N, W_N, C]]
 
         color_grid_sizes: It specifies the size of `color_grid` when `color_grid`
-            is a 2D tensor.
+             is a 2D tensor.
             It is optional when `color_grid` is a grid-list, but required 
             when `color_grid` is a 2D tensor. Example::
 

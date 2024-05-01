@@ -190,7 +190,7 @@ def lightplane_renderer(
         color_grid_sizes: It specifies the size of `color_grid` when `color_grid`
             is a 2D tensor.
             It is optional when `color_grid` is a grid-list, but required when
-            `color_grid`is a 2D tensor. Example::
+            `color_grid` is a 2D tensor. Example::
 
                 color_grid_sizes = [[B, D_1, H_1, W_1, C], ... , [B, D_N, H_N, W_N, C]]
 
@@ -199,7 +199,7 @@ def lightplane_renderer(
         triton_num_warps: The number of warps for Triton.
 
     Returns:
-        ray_length_render: The rendered ray-termination length `r (i.e. distance along the ray).
+        ray_length_render: The rendered ray-termination length `r` (i.e. distance along the ray).
 
         negative_log_transmittances: The negative log transmittances of the ray.
 
