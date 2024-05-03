@@ -107,12 +107,9 @@ feature_grid = [
 # Render the triplane.
 (
     rendered_ray_length,
-    negative_log_transmittances,
+    rendered_alpha,
     rendered_features,
 ) = renderer(rays=rays.to(device), feature_grid=input_grid)
-
-# get the rendering alpha mask in range [0, 1] from negative log transmittances
-alpha = (-negative_log_transmittances).exp()
 ```
 
 **Using Lightplane Splatter**:
