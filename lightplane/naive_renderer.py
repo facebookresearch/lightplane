@@ -535,7 +535,9 @@ def lightplane_eval_mlp_opacity_only(
         print("b_trunk")
         for b in biases_trunk:
             print(b)
-
+    
+    if contract_coords:
+        points = _contract_pi(points)
     feature_sampled = sample_grid_list_checkpointed(
         grid,
         points,
