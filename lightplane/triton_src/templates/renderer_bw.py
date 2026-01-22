@@ -254,7 +254,7 @@ def bw_kernel(
     negative_log_transmittance_buffer = tl.load(
         negative_log_transmittance + offs, mask=offs_mask, other=0.0
     ).to(tl.float32)
-    transmittance = tl.exp(-negative_log_transmittance_buffer)
+    transmittance = tl.math.exp(-negative_log_transmittance_buffer)
     prev_grad_opacity = tl.zeros((BLOCK_SIZE,), dtype=tl.float32)
 
     prev_transmittance = transmittance
@@ -308,12 +308,12 @@ def bw_kernel(
                 1,
             )
 
-            scaffold_mask = tl.view(scaffold_mask, (BLOCK_SIZE,))
+            scaffold_mask = tl.reshape(scaffold_mask, (BLOCK_SIZE,))
 
         else:
             scaffold_mask = one_scaffold
 
-        scaffold_mask_unsqueeze = tl.view(scaffold_mask[:, None], (BLOCK_SIZE, 1))
+        scaffold_mask_unsqueeze = tl.reshape(scaffold_mask[:, None], (BLOCK_SIZE, 1))
 
         if tl.sum(scaffold_mask, axis=0):
             # at least one sampled scaffold entry is active so we eval the mlp
@@ -430,7 +430,7 @@ def bw_kernel(
                 negative_log_transmittance_buffer - delta_opacity
             )
 
-            transmittance = tl.exp(-negative_log_transmittance_buffer)
+            transmittance = tl.math.exp(-negative_log_transmittance_buffer)
 
             grad_opacity = (
                 delta
@@ -439,7 +439,7 @@ def bw_kernel(
             )
 
             grad_opacity_raw = gain * d_softplus(grad_opacity, opacity_raw)
-            grad_opacity_raw = tl.view(grad_opacity_raw[:, None], (BLOCK_SIZE, 1))
+            grad_opacity_raw = tl.reshape(grad_opacity_raw[:, None], (BLOCK_SIZE, 1))
 
             # grad opacity head
             # [[[cog
@@ -449,15 +449,15 @@ def bw_kernel(
             # else:
             #   cog.outl(f"       "+ wb_str_opacity +", "+ x_str_opacity +")")
             # dim_last_opacity = "DIM_HIDDEN_OPACITY" if N_LAYERS_OPACITY > 1 else "DIM_IN_OPACITY"
-            # cog.outl(f"dw{N_LAYERS_OPACITY-1}_opacity = tl.view(dw{N_LAYERS_OPACITY-1}_opacity, (1, {dim_last_opacity}))")
+            # cog.outl(f"dw{N_LAYERS_OPACITY-1}_opacity = tl.reshape(dw{N_LAYERS_OPACITY-1}_opacity, (1, {dim_last_opacity}))")
             # ]]]
             # [[[end]]]
 
             transmittance_diff = transmittance - prev_transmittance
-            transmittance_diff = tl.view(transmittance_diff[:, None], (BLOCK_SIZE, 1))
+            transmittance_diff = tl.reshape(transmittance_diff[:, None], (BLOCK_SIZE, 1))
 
             # add the feature grad again
-            d_color = transmittance_diff * tl.view(
+            d_color = transmittance_diff * tl.reshape(
                 grad_expected_features_buffer, (BLOCK_SIZE, DIM_OUT_COLOR)
             )
 
@@ -560,7 +560,7 @@ def bw_kernel(
                 negative_log_transmittance_buffer - delta_value
             )
 
-            transmittance = tl.exp(-negative_log_transmittance_buffer)
+            transmittance = tl.math.exp(-negative_log_transmittance_buffer)
 
             # [[[cog
             # def create_grad_value_function(mlp_name, n_layers):

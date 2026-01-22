@@ -172,7 +172,7 @@ def fwbw_splatter_init(
         mask + pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)[:, None],
         mask=offs_features_mask,
     ).to(tl.float32)
-    mask = tl.view(mask, (BLOCK_SIZE, 1))
+    mask = tl.reshape(mask, (BLOCK_SIZE, 1))
     return (
         tot_num_samples,
         pid,

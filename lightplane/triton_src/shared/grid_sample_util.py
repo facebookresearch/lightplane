@@ -11,7 +11,7 @@ import triton.language as tl
 
 @triton.jit
 def _floor(x):
-    return x - x % 1
+    return tl.math.floor(x)
 
 
 @triton.jit
@@ -27,12 +27,16 @@ def is_in_bounds(
     C: tl.constexpr,
     BLOCK_SIZE: tl.constexpr,
 ):
-    in_bounds = (tl.abs(x) <= 1) * (tl.abs(y) <= 1) * (tl.abs(z) <= 1)
+    in_bounds = (
+        (tl.abs(x) <= 1).to(tl.int32)
+        * (tl.abs(y) <= 1).to(tl.int32)
+        * (tl.abs(z) <= 1).to(tl.int32)
+    ).to(tl.float32)
     if C == 1:
-        in_bounds_mask = tl.view(in_bounds.to(tl.float32), (BLOCK_SIZE,))
+        in_bounds_mask = tl.reshape(in_bounds.to(tl.float32), (BLOCK_SIZE,))
     else:
         in_bounds_mask = tl.broadcast_to(
-            in_bounds.to(tl.float32)[:, None], (BLOCK_SIZE, C)
+            tl.expand_dims(in_bounds.to(tl.float32), axis=1), (BLOCK_SIZE, C)
         )
     return in_bounds_mask
 
@@ -61,9 +65,9 @@ def _splat_3d(
         tl.float32
     )
 
-    w = tl.view(w[:, None], (BLOCK_SIZE, 1))
-    offs = tl.view(
-        (batch_index * ID * IW * IH * C + iz_ * IW * IH * C + iy_ * IW * C + ix_ * C)[
+    w = tl.reshape(w[:, None], (BLOCK_SIZE, 1))
+    offs = tl.reshape(
+        (batch_index.to(tl.int64) * ID * IW * IH * C + iz_.to(tl.int64) * IW * IH * C + iy_.to(tl.int64) * IW * C + ix_.to(tl.int64) * C)[
             :, None
         ]
         + Coffs[None, :],
@@ -91,8 +95,8 @@ def _splat_2d(
 
     w = w * ((iy >= 0) * (iy < IH) * (ix >= 0) * (ix < IW)).to(tl.float32)
 
-    w = tl.view(w[:, None], (BLOCK_SIZE, 1))
-    offs = tl.view(
+    w = tl.reshape(w[:, None], (BLOCK_SIZE, 1))
+    offs = tl.reshape(
         (batch_index * IW * IH * C + iy_ * IW * C + ix_ * C)[:, None] + Coffs[None, :],
         (BLOCK_SIZE, C),
     )
@@ -667,16 +671,14 @@ def _sample_3d(
     ).to(tl.float32)
 
     if C == 1:  # do not append the last dim
-        val = tl.view(tl.load(image_offs).to(tl.float32), (BLOCK_SIZE,))
-        out = tl.view(val * mask_w, (BLOCK_SIZE,))
+        val = tl.reshape(tl.load(image_offs).to(tl.float32), (BLOCK_SIZE,))
+        out = tl.reshape(val * mask_w, (BLOCK_SIZE,))
         return out
 
     else:
-        val = tl.view(
-            tl.load(image_offs[:, None] + Coffs[None, :]).to(tl.float32),
-            (BLOCK_SIZE, C),
-        )
-        mask_w_bcast = tl.view(mask_w[:, None], (BLOCK_SIZE, 1))
+        offsets_2d = tl.reshape(image_offs, (BLOCK_SIZE, 1)) + tl.reshape(Coffs, (1, C))
+        val = tl.reshape(tl.load(offsets_2d).to(tl.float32), (BLOCK_SIZE, C))
+        mask_w_bcast = tl.reshape(mask_w[:, None], (BLOCK_SIZE, 1))
         return val * mask_w_bcast
 
 
@@ -701,16 +703,16 @@ def _sample_2d(
     mask_w = w * ((iy >= 0) * (iy < IH) * (ix >= 0) * (ix < IW)).to(tl.float32)
 
     if C == 1:  # do not append the last dim
-        val = tl.view(tl.load(image_offs).to(tl.float32), (BLOCK_SIZE,))
-        out = tl.view(val * mask_w, (BLOCK_SIZE,))
+        val = tl.reshape(tl.load(image_offs).to(tl.float32), (BLOCK_SIZE,))
+        out = tl.reshape(val * mask_w, (BLOCK_SIZE,))
         return out
 
     else:
-        val = tl.view(
+        val = tl.reshape(
             tl.load(image_offs[:, None] + Coffs[None, :]).to(tl.float32),
             (BLOCK_SIZE, C),
         )
-        mask_w_bcast = tl.view(mask_w[:, None], (BLOCK_SIZE, 1))
+        mask_w_bcast = tl.reshape(mask_w[:, None], (BLOCK_SIZE, 1))
         return val * mask_w_bcast
 
 

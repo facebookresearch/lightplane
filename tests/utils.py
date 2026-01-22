@@ -14,15 +14,14 @@ from typing import List, Optional, Tuple, Union
 import numpy
 import numpy as np
 import torch
-
 from lightplane import (
     DecoderParams,
-    Rays,
-    SplatterParams,
     init_decoder_params,
     init_splatter_params,
     lightplane_mlp_splatter,
     lightplane_splatter,
+    Rays,
+    SplatterParams,
 )
 from lightplane.naive_splatter import (
     lightplane_mlp_splatter_naive,

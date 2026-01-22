@@ -4,9 +4,10 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+import triton.language as tl
 
 # A100s cause illegal memory access when this is enabled
-ALLOW_TF32 = False
+ALLOW_TF32 = tl.constexpr(False)
 
 # If False, makes sure that all threads in a warp are synchronized at the end of each function
 ALLOW_WARP_DIVERGENCE = False

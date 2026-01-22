@@ -10,10 +10,16 @@ import triton
 import triton.language as tl
 
 
-INT32_PRIME = 105097564  # the largest int32 prime
-MAX_INT_32_F = 2147483647.0
-MAX_UINT_32_F = 4294967295.0
-MAX_UINT_32_F_EPS = 3.0
+_INT32_PRIME = 105097564  # the largest int32 prime
+_MAX_INT_32_F = 2147483647.0
+_MAX_UINT_32_F = 4294967295.0
+_MAX_UINT_32_F_EPS = 3.0
+
+# Wrapped as constexpr for use in Triton JIT kernels
+INT32_PRIME = tl.constexpr(_INT32_PRIME)
+MAX_INT_32_F = tl.constexpr(_MAX_INT_32_F)
+MAX_UINT_32_F = tl.constexpr(_MAX_UINT_32_F)
+MAX_UINT_32_F_EPS = tl.constexpr(_MAX_UINT_32_F_EPS)
 
 
 @triton.jit
@@ -75,7 +81,7 @@ def int_to_randn(x1, x2, seed):  # x is tl.uint32
     x_01_1 = int32_to_float01(x_hash_1)
     x_01_2 = int32_to_float01(x_hash_2)
     # box-muller transform: https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-    z = tl.sqrt(-2 * tl.log(x_01_1)) * tl.cos(6.28318530718 * x_01_2)
+    z = tl.math.sqrt(-2 * tl.math.log(x_01_1)) * tl.math.cos(6.28318530718 * x_01_2)
     return z
 
 
@@ -130,16 +136,17 @@ def int_to_randn_naive(
     x_hash_1 = _hash_naive(x1.int())
     x_hash_2 = _hash_naive(x2.int())
     x_hash_1 = _pair_hash_naive(
-        _pair_hash_naive(INT32_PRIME, seed), x_hash_1
+        _pair_hash_naive(_INT32_PRIME, seed), x_hash_1
     )  # slower+stronger
-    x_hash_2 = _pair_hash_naive(_pair_hash_naive(INT32_PRIME, seed + 1), x_hash_2)
+    x_hash_2 = _pair_hash_naive(_pair_hash_naive(_INT32_PRIME, seed + 1), x_hash_2)
     # transform to [0, 1]
-    x_hash_1_f = x_hash_1.int() + MAX_INT_32_F
-    x_hash_2_f = x_hash_2.int() + MAX_INT_32_F
-    x_01_1 = (x_hash_1_f + MAX_UINT_32_F_EPS) / (
-        MAX_UINT_32_F + MAX_UINT_32_F_EPS
+    # Use float32 to match Triton kernel precision
+    x_hash_1_f = x_hash_1.int().float() + _MAX_INT_32_F
+    x_hash_2_f = x_hash_2.int().float() + _MAX_INT_32_F
+    x_01_1 = (x_hash_1_f + _MAX_UINT_32_F_EPS) / (
+        _MAX_UINT_32_F + _MAX_UINT_32_F_EPS
     )  # 4294967295.0 = max uint32
-    x_01_2 = (x_hash_2_f + MAX_UINT_32_F_EPS) / (MAX_UINT_32_F + MAX_UINT_32_F_EPS)
+    x_01_2 = (x_hash_2_f + _MAX_UINT_32_F_EPS) / (_MAX_UINT_32_F + _MAX_UINT_32_F_EPS)
     # box-muller transform: https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
     z = (-2 * x_01_1.log()).sqrt() * (6.28318530718 * x_01_2).cos()
     return z

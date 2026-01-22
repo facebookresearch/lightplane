@@ -18,13 +18,13 @@ def d_sigmoid(dy, x):
 
 @triton.jit
 def _softplus(x):
-    z = tl.where(x >= 0, x + tl.log(1 + tl.exp(-x)), tl.log(1 + tl.exp(x)))
+    z = tl.where(x >= 0, x + tl.math.log(1 + tl.math.exp(-x)), tl.math.log(1 + tl.math.exp(x)))
     return z
 
 
 @triton.jit
 def _d_softplus(grad, x):
-    z = tl.where(x >= 0, 1 / (1 + tl.exp(-x)), 1 - 1 / (1 + tl.exp(x)))
+    z = tl.where(x >= 0, 1 / (1 + tl.math.exp(-x)), 1 - 1 / (1 + tl.math.exp(x)))
     return grad * z
 
 

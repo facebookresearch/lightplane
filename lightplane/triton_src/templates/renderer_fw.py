@@ -204,7 +204,7 @@ def fw_kernel(
     # tl.printf("w0_trunk ", w0_trunk)
     # tl.printf("b0_trunk ", b0_trunk)
 
-    transmittance = tl.exp(-negative_log_transmittance_buffer)
+    transmittance = tl.math.exp(-negative_log_transmittance_buffer)
 
     for step in range(tot_num_samples):
         if step < num_samples:
@@ -244,7 +244,7 @@ def fw_kernel(
                 BLOCK_SIZE,
                 1,
             )
-            scaffold_mask = tl.view(scaffold_mask, (BLOCK_SIZE,))
+            scaffold_mask = tl.reshape(scaffold_mask, (BLOCK_SIZE,))
 
         else:
             scaffold_mask = one_scaffold
@@ -334,7 +334,7 @@ def fw_kernel(
 
             # we must re-mask the values with scaffold here
             delta_opacity = delta_opacity * scaffold_mask
-            color = color * tl.view(scaffold_mask[:, None], (BLOCK_SIZE, 1))
+            color = color * tl.reshape(scaffold_mask[:, None], (BLOCK_SIZE, 1))
 
         else:
             # Scaffold yields 0 -> we render 0 colors/opacity.
@@ -346,7 +346,7 @@ def fw_kernel(
         negative_log_transmittance_buffer = (
             negative_log_transmittance_buffer + delta_opacity
         )
-        transmittance = tl.exp(-negative_log_transmittance_buffer)
+        transmittance = tl.math.exp(-negative_log_transmittance_buffer)
         render_weights = prev_transmittance - transmittance
 
         # exp depth
@@ -354,7 +354,7 @@ def fw_kernel(
 
         # render weights
         render_weights = prev_transmittance - transmittance
-        render_weights_bcast = tl.view(render_weights[:, None], (BLOCK_SIZE, 1))
+        render_weights_bcast = tl.reshape(render_weights[:, None], (BLOCK_SIZE, 1))
 
         feature_render = color * render_weights_bcast
 

@@ -18,7 +18,7 @@ def setup_package():
         packages=find_packages(exclude=["tests", "examples", "scratch"]),
         install_requires=[
             "cogapp",
-            "triton==2.2.0",
+            "triton==3.6.0",
             "configargparse",
             "tqdm"
         ],
